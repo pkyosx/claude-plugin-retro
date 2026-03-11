@@ -27,11 +27,36 @@ The two-tier design (lightweight index → detailed domain files) keeps token us
 
 ## Install
 
-```bash
-claude plugin add -- pkyosx/claude-plugin-retro
+1. Add the marketplace:
+   ```
+   /plugin marketplace add pkyosx/claude-plugin-retro
+   ```
+
+2. Install the plugin:
+   ```
+   /plugin install agent-retro
+   ```
+
+   Or browse available plugins via `/plugin` → **Discover** tab.
+
+### Auto-configuration
+
+Add to your project's `.claude/settings.json` so the plugin is automatically available:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "pkyosx-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "pkyosx/claude-plugin-retro"
+      }
+    }
+  }
+}
 ```
 
-Or for local development:
+### Local development
 
 ```bash
 claude --plugin-dir /path/to/claude-plugin-retro
