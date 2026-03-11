@@ -4,11 +4,13 @@ A Claude Code plugin that gives AI agents a persistent learning loop. After comp
 
 ## How it works
 
-**Two modes:**
+**Three modes:**
 
 1. **Retro mode** (`/retro`) — Run after a task to reflect on what was inefficient, what failed, and what workarounds were discovered. Stores structured learnings in `~/.claude/memory/experiences/`.
 
 2. **Recall mode** (automatic) — Before starting complex tasks, the agent checks the experience index for relevant past lessons and applies them proactively.
+
+3. **Try Harder mode** (`/try-harder`) — Spawns a subagent to do a deep, thorough search of the entire experience store. Keeps your main context window clean while getting better recall accuracy than a quick index scan. Use when you're stuck or about to tackle something tricky.
 
 **Architecture:**
 
@@ -52,6 +54,20 @@ The agent will:
 2. Store it in the appropriate domain file
 3. Update the index for future recall
 4. Show you what it's saving for confirmation
+
+### When you're stuck or want deeper recall:
+
+```
+/try-harder
+```
+
+The agent spawns a background subagent that:
+1. Reads the full experience index
+2. Scans all domain files (not just index matches)
+3. Checks cross-project memories
+4. Returns only the relevant lessons back to the main agent
+
+This costs ~2-5K tokens for the search but can save 10-50K tokens of wasted retries. The main context window stays clean.
 
 ### Before starting a new task:
 
