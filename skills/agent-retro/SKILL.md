@@ -1,7 +1,7 @@
 ---
 name: agent-retro
 description: >
-  Agent learning loop — retrospective and experience recall. This skill has two modes:
+  Agent learning loop — retrospective, experience recall, and auto-nudge. This skill has three modes:
 
   **Retro mode (`/retro`):** Run after completing a task to reflect on what was inefficient, what failed,
   what workarounds were discovered, and store structured learnings for future sessions. Use this whenever
@@ -15,13 +15,21 @@ description: >
   hard-won lesson, check experiences BEFORE diving in. Even if the user doesn't ask — if you're about to
   do something that has a relevant experience entry, read it first. Think of this as "checking your notes
   before the exam."
+
+  **Auto-nudge mode (silent, continuous):** While working, continuously monitor for learning opportunities.
+  PROACTIVELY save experiences WITHOUT being asked when you detect: (1) a retry — you tried an approach
+  that failed and had to switch to a different one, (2) a non-obvious discovery — something worked but
+  only after investigation that a newcomer wouldn't know, (3) a tool gotcha — a tool behaved differently
+  than expected. Don't ask the user for permission on auto-nudge saves — just save and briefly mention
+  "Saved experience: {one-liner}" so they know. This is the closed learning loop.
 ---
 
 # Agent Retro — Learning Loop
 
-This skill gives you a persistent memory of hard-won lessons. It has two modes:
+This skill gives you a persistent memory of hard-won lessons. It has three modes:
 - **Retro**: reflect on what happened, extract learnings, store them
 - **Recall**: before starting work, check if past experiences are relevant
+- **Auto-nudge**: silently detect and save learnings during work — the closed learning loop
 
 The experience store lives at `~/.claude/memory/experiences/` and persists across all projects and sessions.
 
@@ -53,6 +61,8 @@ One-liner per experience for quick scanning. Format:
   the same approach, workarounds for tool limitations, non-obvious solutions that took multiple attempts),
   suggest running a retro at the end: "That was a tricky one — want me to run `/retro` to capture what
   we learned?"
+
+Note: For lightweight, in-the-moment saves, use **Auto-nudge mode** (see below) instead of a full retro.
 
 ### How to run a retrospective
 
@@ -123,6 +133,60 @@ Bad:
 
 **Skip trivial lessons.** Don't store things that are obvious or well-documented. Focus on things that
 cost real time to figure out.
+
+## Auto-Nudge Mode
+
+The closed learning loop. Unlike retro (manual, end-of-session) and recall (proactive, start-of-task),
+auto-nudge runs **continuously during work** and saves learnings as they happen.
+
+### How it works
+
+While working on any task, watch for these signals:
+
+| Signal | Example | What to save |
+|--------|---------|-------------|
+| **Retry** | Tried approach A, it failed, switched to B | Why A failed, why B works |
+| **Non-obvious discovery** | Solution required reading source code or docs to figure out | The non-obvious fact |
+| **Tool gotcha** | CLI flag, API behavior, or config that surprised you | The correct usage |
+| **Workaround** | Had to work around a limitation | The limitation and the workaround |
+| **User correction** | User said "no, do it this way instead" | What the user prefers and why |
+
+### When a signal fires
+
+1. **Save immediately** — don't wait for end-of-session. Write the experience entry to the
+   appropriate domain file and update the index.
+
+2. **Keep it lightweight** — auto-nudge entries can be shorter than full retro entries.
+   Minimum: Tags, one-line Context, one-line Rule. Skip Problem/Root Cause if obvious.
+
+   ```markdown
+   ## [YYYY-MM-DD] Brief title
+
+   **Tags:** tool1, tool2
+   **Context:** What was being attempted
+   **Rule:** The one-line takeaway
+   ```
+
+3. **Notify briefly** — after saving, mention it in one line so the user knows:
+   ```
+   💡 Saved experience: "Cerbos SDK v0.7.x uses `action` kwarg, not `actions`"
+   ```
+   Then continue with the task. Don't interrupt the flow.
+
+4. **Don't over-save** — only save things that are non-obvious and would cost time if
+   encountered again. If the lesson is "I had a typo", don't save it.
+
+### What NOT to auto-save
+
+- Typos and simple mistakes
+- Things already documented in README/CLAUDE.md
+- Trivial one-off issues that won't recur
+- Information the user explicitly said to ignore
+
+### Deduplication
+
+Before saving, quickly scan the experience index to check if a similar entry already exists.
+If it does, skip or update the existing entry rather than creating a duplicate.
 
 ## Recall Mode
 
