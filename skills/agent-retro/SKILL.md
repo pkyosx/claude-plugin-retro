@@ -83,6 +83,7 @@ Note: For lightweight, in-the-moment saves, use **Auto-nudge mode** (see below) 
    **Problem:** What went wrong or was inefficient (be specific)
    **Root Cause:** Why it happened (the underlying reason, not just symptoms)
    **Solution:** What actually worked (exact commands, code, or approach)
+   **Pattern:** The generalizable principle — what does this teach beyond this specific situation? (舉一反三)
    **Rule:** One-line actionable guideline for next time
    ```
 
@@ -133,6 +134,40 @@ Bad:
 
 **Skip trivial lessons.** Don't store things that are obvious or well-documented. Focus on things that
 cost real time to figure out.
+
+### Generalize to behavior patterns (舉一反三)
+
+**Every experience should be generalized beyond its specific situation.** The specific fix is useful once;
+the underlying pattern is useful forever.
+
+When writing an experience entry, always ask: "What general principle does this teach that applies to
+situations I haven't seen yet?"
+
+Replace the specific **Rule** with a **Pattern** that explains the underlying principle, then keep the
+**Rule** as a concrete application of that pattern.
+
+Bad (too specific — only helps if you hit this exact situation):
+> **Rule:** Use `contextvars.ContextVar` not `threading.local` when passing state from ASGI middleware
+> to FastMCP tool handlers.
+
+Good (generalizable — helps in any async/sync boundary situation):
+> **Pattern:** When passing state across async/sync boundaries, the correct mechanism depends on HOW the
+> framework bridges them. Don't guess — read the framework's dispatch code. `anyio.to_thread.run_sync()`
+> propagates contextvars but not thread-locals.
+> **Rule:** Before choosing a state-passing mechanism, verify: "In what thread/context does the consumer
+> run, and what gets propagated there?"
+
+Bad (too specific):
+> **Rule:** When MCP proxy returns 500, check Django error logs first.
+
+Good (generalizable — helps in any proxy/upstream debugging):
+> **Pattern:** Error 500 from a proxy almost always originates in the upstream service. Confirmation bias
+> makes you look at the code you just changed, not the logs of the service that actually failed. After
+> finding root cause, audit all changes made under the wrong assumption — they may introduce new bugs.
+> **Rule:** Debug sequence: READ logs → VERIFY assumption → CHANGE code. Never skip step 2.
+
+The **Pattern** field should make someone think "oh, I can apply this to X, Y, Z" — not just the
+original situation.
 
 ## Auto-Nudge Mode
 
