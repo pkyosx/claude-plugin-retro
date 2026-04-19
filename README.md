@@ -1,5 +1,15 @@
 # agent-retro
 
+> ⚠️ **This repo has moved to [pkyosx/claude-plugins](https://github.com/pkyosx/claude-plugins).**
+> This repo is archived and will not receive further updates. Existing installs keep working but won't pull updates. To migrate:
+>
+> ```
+> /plugin marketplace remove pkyosx-plugins
+> /plugin marketplace add pkyosx/claude-plugins
+> /plugin install agent-retro@pkyosx-plugins
+> /reload-plugins
+> ```
+
 A Claude Code plugin that gives AI agents a persistent learning loop. After completing tasks, run a retrospective to capture hard-won lessons. Before starting new tasks, the agent automatically recalls relevant past experiences to avoid repeating mistakes.
 
 ## How it works
